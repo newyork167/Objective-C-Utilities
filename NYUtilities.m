@@ -78,57 +78,6 @@
     return [NSString stringWithString:hexString];
 }
 
-#pragma mark - GETTER METHODS FOR HEX STRINGS
-
-/**
- Gets status bits from sent hexstring
- 
- @param hexString String representing returned data
- 
- @return Status bits in decimal format
- */
-+(NSInteger)getStatusFromModbusHexString:(NSString *)hexString{
-    return [self convertHexToDecimal:[hexString substringWithRange:NSMakeRange(4, 4)] littleEndian:YES];
-}
-
-/**
- Get size of payload from sent hexstring
- 
- @param hexString String representing returned data
- 
- @return Size in decimal format
- */
-+(NSInteger)getSizeFromModbusHexString:(NSString *)hexString{
-    if ([hexString length] < 10)
-        return 0;
-    return ![hexString length] ? 0 : [self convertHexToDecimal:[hexString substringWithRange:NSMakeRange(8, 2)] littleEndian:NO];
-}
-
-/**
- Gets data from hexstring payload
- 
- @param hexString String representing returned data
- 
- @return Payload data in decimal format
- */
-+(NSInteger)getDataFromModbusHexString:(NSString *)hexString{
-    NSInteger size = [self getSizeFromModbusHexString:hexString] * 2;
-    NSString *payloadString = [hexString substringWithRange:NSMakeRange(10, size)];
-    
-    return [self convertHexToDecimal:payloadString littleEndian:YES];
-}
-
-/**
- Gets CRC 32 from hexstring
- 
- @param hexString String representing returned data
- 
- @return CRC 32 data in decimal format
- */
-+(NSInteger)getCrc32FromModbusHexString:(NSString *)hexString{
-    return [self convertHexToDecimal:[hexString substringWithRange:NSMakeRange([hexString length] - 8, 8)] littleEndian:YES];
-}
-
 #pragma mark - HEX TO DECIMAL METHODS
 
 /**
@@ -348,18 +297,6 @@
 #pragma mark - DEBUG METHODS
 
 /**
- DEBUG - Function to test HexObject
- */
-+(void)test{
-    
-    HexObject *obj = [[HexObject alloc] initWithReadWrite:1 size:2];
-    
-    [obj setPayload:@[@131]];
-    
-    NSLog(@"Data Created: %@", [obj getDataPacket]);
-}
-
-/**
 * Returns random number between bounds inclusively
 *
 * @param lowerBounds Lowest number to allow random to return
@@ -396,6 +333,9 @@
     return returnArray;
 }
 
+/**
+ Dispatch methods using AsyncController class to handle serial queue and group
+ **/
 +(void)dispatch_serial_group:(void (^)(void))block{
     dispatch_group_async([[AsyncController sharedManager] serialQueueGroup], [[AsyncController sharedManager] serialQueue], block);
 }
@@ -665,7 +605,7 @@
 }
 
 /**
-* Method to append an instance array to another array
+* Method to append an instance array to another array - Mostly to make it obvious
 *
 * @param objects - Array containing objects to be appended
 * @param array - Array to append objects from objects array to
@@ -735,32 +675,6 @@
 
 
 #pragma mark - MISC METHODS
-/**
- Converts float to formatted string to show decimal when needed (< 10 show tens, < 1 show hundreds if available)
- 
- @param data float to convert
- 
- @return float string representation
- */
-+(NSString *)floatToFormattedString:(float)data {
-    /* Returns a formatted string from float. Empty string if data is empty.   */
-    if(data>= 10 || data == 0){
-        return [NSString stringWithFormat:@"%.1f", data];
-    }
-    else if(data >= 1 && data < 10)
-    {
-        if(fmod(data,1) == 0){
-            return [NSString stringWithFormat:@"%.0f", data];
-        }
-        return [NSString stringWithFormat:@"%.1f", data];
-    }
-    else {
-        if(fmod(data,1) == 0){
-            return [NSString stringWithFormat:@"%.0f", data];
-        }
-        return [NSString stringWithFormat:@"%.2f", data];
-    }
-}
 
 /**
  *  Convert ASCII string to hex string
@@ -853,29 +767,14 @@
     [zipFile buildHashTable];
 
     for (NSString *file in filenames){
-        if ([file rangeOfString:@"__MACOSX"].location == NSNotFound && [file rangeOfString:@".bin"].location != NSNotFound)
+        // Removes OS X System Files
+        if ([file rangeOfString:@"__MACOSX"].location == NSNotFound)
             files[file] = [zipFile readWithFileName:file caseSensitive:YES maxLength:NSUIntegerMax];
     }
 
     [zipFile close];
 
     return files;
-}
-
-+(NSArray *)sortFirmwareZipFileArray:(NSDictionary *)array{
-    NSMutableArray *returnArray = [NSMutableArray new];
-
-    for (NSString *key in array){
-        if ([key rangeOfString:@"METER"].location != NSNotFound && [returnArray count] < 2){
-            [returnArray insertObject:array[key] atIndex:0];
-        }
-        else if ([key rangeOfString:@"IO"].location != NSNotFound && [returnArray count] < 2)
-        {
-            [returnArray addObject:array[key]];
-        }
-    }
-
-    return returnArray;
 }
 
 /**
@@ -1173,99 +1072,6 @@
 //    return [[string substringFromIndex:from] substringToIndex:to - from];
 }
 
-/**
- * Divides a value by the appropriate multiplier.  This must be done
- * to convert the ui value of a field to the device value.
- *
- * @param value The value to divide
- * @param address The address of the field
- * @param index The index of the current tab
- *
- * @return The converted value to store in the device
- */
-+ (NSDecimalNumber *)divideValue:(NSDecimalNumber *)valueFloat
-                      forAddress:(NSString *)address
-                        forIndex:(int)index{
-    NSDecimalNumber *result;
-    DataField *dataField;
-    AppDelegate *appDelegate;
-    
-    appDelegate = [[UIApplication sharedApplication] delegate];
-    
-    dataField = [[appDelegate getDataModelForIndex:index] retrieveDataFieldForAddress:address];
-    
-    NSDecimalNumber *multiplier = [dataField multiplier];
-    
-    if([multiplier isEqualToNumber:@0])
-        multiplier = [NSDecimalNumber decimalNumberWithString:@"1.0"];
-    
-    result = [valueFloat decimalNumberByDividingBy:multiplier];
-    
-    return result;
-}
-
-/**
- * Determines if a given value falls within the valid range for a field.
- *
- * @param value The value to divide
- * @param address The address of the field
- * @param index The index of the current tab
- *
- * @return YES if the given value is valid; NO otherwise
- */
-+ (BOOL)checkBoundsForValue:(float)valueFloat
-                 forAddress:(NSString *)address
-                   forIndex:(int)index {
-    
-    BOOL result;
-    DataField *dataField;
-    AppDelegate *appDelegate;
-    
-    appDelegate = [[UIApplication sharedApplication] delegate];
-    
-    dataField = [[appDelegate getDataModelForIndex:index] retrieveDataFieldForAddress:address];
-    
-    //Copied from APISelectors:
-    //Calculate the range if it's under or over voltage values
-    if([[dataField address] integerValue] == 59){//59 is Over Voltage Level
-        DriveModel *dm = [DriveModel sharedManager];
-        
-        [dataField setDataRange:[[NSMutableArray alloc] initWithArray:[dm calculateMinMaxForVoltage:2]]];
-    }
-    else if([[dataField address] integerValue] == 65){ //65 is Under Voltage Level
-        DriveModel *dm = [DriveModel sharedManager];
-        [dataField setDataRange:[[NSMutableArray alloc] initWithArray:[dm calculateMinMaxForVoltage:1]]];
-    }
-    
-    // check bounds prior to display
-    NSMutableArray *dataRange = [dataField dataRange];
-    
-    // if data is less than minimum or greater than maximum data range, we have a problem
-    if([dataRange count] >= 2 &&
-       (valueFloat < [[dataRange objectAtIndex:0] floatValue] ||
-        valueFloat > [[dataRange objectAtIndex:1] floatValue])){
-           result = NO;
-    }
-    else{
-        result = YES;
-    }
-    
-    return result;
-}
-
-+ (BOOL)canWrite:(DataField *)dataField {
-    BOOL canWrite;
-    
-    if([[dataField readWrite] isEqualToString:READ_ONLY]){
-        canWrite = NO;
-    }
-    else{
-        canWrite = YES;
-    }
-    
-    return canWrite;
-}
-
 + (NSMutableString *)stringFromHexString:(NSString *)hexString {
     // The hex codes should all be two characters.
     if (([hexString length] % 2) != 0)
@@ -1283,35 +1089,6 @@
 
     NSLog(@"string ---%@",string);
     return string;
-}
-
-+(NSString *)formatFirmwareVersion:(NSString *)version{
-    version = [NYUtilites padString:version padWith:@"0" totalLength:6 padLeft:YES];
-    version = [NSString stringWithFormat:@"%@.%@.%@", [NYUtilites substring:version From:0 length:2], [NYUtilites substring:version From:2 length:2], [NYUtilites substring:version From:4 length:2]];
-    return version;
-}
-
-/**
- * Writes a string to a csv file in a temporary directory
- * and returns the NSURL of the file
- *
- * @param data The string to write to a file
- *
- * @return The location of the file in the file system
- */
-+ (NSURL *)writeStringToFile:(NSString *)data{
-    // write the string to a file
-    NSURL *tmpDirURL = [NSURL fileURLWithPath:NSTemporaryDirectory() isDirectory:YES];
-    NSURL *fileURL = [[tmpDirURL URLByAppendingPathComponent:@"logs"] URLByAppendingPathExtension:@"csv"];
-    
-    NSError *error;
-    bool didWrite = [data writeToFile:[fileURL path] atomically:YES encoding:NSUTF8StringEncoding error:&error];
-    
-    if(!didWrite){
-        fileURL = nil;
-    }
-    
-    return fileURL;
 }
 
 +(NSString *)calculateCRC:(NSString *)dataString{
@@ -1423,26 +1200,5 @@
 + (NSArray *)reversedArray:(NSArray *)reverse {
     return [[reverse reverseObjectEnumerator] allObjects];
 }
-/**
- *  Removes decimal places from decimal without rounding the value
- *
- *  @param stringToConvert The decimal string that needs to be converted
- *  @param decimalPlaces   The number of decimal places you want the string to have
- *
- *  @return NSString of the formatted decimal value
- */
-//+ (NSString *) limitDecimalStringWithoutRoundingWithString: (NSString*)stringToConvert withDecimalPlaces: (int)decimalPlaces{
-//    NSString *returnString = stringToConvert;
-//    
-//    //Split the string and remove the decimal places then re-append the string
-//    NSArray *splitStringArray = [stringToConvert componentsSeparatedByString:@"."];
-//    if([splitStringArray count]>1){
-//        if(decimalPlaces > 0)
-//            returnString = [NSString stringWithFormat:@"%@.%@", splitStringArray[0], [splitStringArray[1] substringWithRange:NSMakeRange(0, decimalPlaces)]];
-//        else
-//            returnString = splitStringArray[0];
-//    }
-//    return returnString;
-//}
 
 @end
