@@ -1,4 +1,9 @@
 # Objective-C-Utilities
+
+https://github.com/newyork167/Objective-C-Utilities/blob/master/README.md#custom-ios-alert-view
+
+# NYUtilities
+
 A utilities method to help with common issues that are not readily available in the iOS/Mac API
 
 The header contains an implementation for switch statements for NSString objects
