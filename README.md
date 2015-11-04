@@ -93,6 +93,10 @@ Reszies UIImage
 CRC Calculation
 + (NSString *)calculateCRC:(NSString *)dataString;
 
+NSDecimal/NSDecimalNumber Methods
++ (NSDecimalNumber *)decimalNumberForDouble:(double)doubleValue;
++ (NSDecimal)decimalValueForDouble:(double)doubleValue;
+
 
 # DBManager
 

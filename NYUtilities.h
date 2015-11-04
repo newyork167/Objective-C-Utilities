@@ -106,4 +106,8 @@ Random Number Generator
 //CRC Calculation
 + (NSString *)calculateCRC:(NSString *)dataString;
                    forIndex:(int)index;
+
+// NSDecimal/NSDecimalNumber Methods
++ (NSDecimalNumber *)decimalNumberForDouble:(double)doubleValue;
++ (NSDecimal)decimalValueForDouble:(double)doubleValue;
 @end

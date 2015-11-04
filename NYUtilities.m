@@ -1200,4 +1200,20 @@
     return [[reverse reverseObjectEnumerator] allObjects];
 }
 
++ (NSDecimalNumber *)decimalNumberForDouble:(double) doubleValue {
+    NSString *stringRepresentationOfDouble = [[NSString alloc] initWithFormat:@"%f", doubleValue];
+    NSDecimalNumber *stringProcessor = [[NSDecimalNumber alloc] initWithString:stringRepresentationOfDouble];
+    return stringProcessor;
+}
+
++ (NSDecimal)decimalValueForDouble:(double)doubleValue {
+    NSDecimal result;
+    NSString *stringRepresentationOfDouble = [[NSString alloc] initWithFormat:@"%f", doubleValue];
+    NSScanner *theScanner = [[NSScanner alloc] initWithString:stringRepresentationOfDouble];
+    
+    [theScanner scanDecimal:&result];
+    
+    return result;
+}
+
 @end
