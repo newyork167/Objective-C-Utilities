@@ -93,6 +93,7 @@ Random Number Generator
 + (NSString *)reverseString:(NSString *)string;
 + (NSString *)substring:(NSString *)string From:(NSUInteger)from length:(NSUInteger)to;
 + (NSMutableString *)stringFromHexString:(NSString *)hexString;
++ (NSString *)stripWhiteSpaceFromString:(NSString *)str;
 
 //Returns whether or not the current time - start time > time alloted
 + (bool)howIsTime:(NSTimeInterval)startTime timeAllotted:(NSInteger)time;

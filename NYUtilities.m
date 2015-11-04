@@ -1216,4 +1216,10 @@
     return result;
 }
 
++ (NSString *)stripWhiteSpaceFromString:(NSString *)str{
+    NSArray* words = [str componentsSeparatedByCharactersInSet :[NSCharacterSet whitespaceAndNewlineCharacterSet]];
+    NSString* nospacestring = [words componentsJoinedByString:@""];
+    return nospacestring;
+}
+
 @end
