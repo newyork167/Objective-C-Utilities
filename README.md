@@ -136,6 +136,7 @@ Select/Insert methods for single database
 # Custom IOS Alert View
 
 Custom implementation of the alert view found here: https://github.com/wimagguc
+Implemented by rweavere
 
 # CBZip
 
