@@ -84,3 +84,47 @@ Reszies UIImage
 
 CRC Calculation
 + (NSString *)calculateCRC:(NSString *)dataString;
+
+
+# DBManager
+
+A class for holding and utilizing a sqlite database
+
+Initializer for opening and copying database into documents directory
+-(instancetype)initWithDatabaseFilename:(NSString *)dbFilename;
+-(void)copyDatabaseIntoDocumentsDirectory;
+
+Runs query and informs database whether or not query is executable
+-(void)runQuery:(const char *)query isQueryExecutable:(BOOL)queryExecutable;
+
+Loads data from DB - usually a SELECT statement
+-(NSArray *)loadDataFromDB:(NSString *)query;
+
+Executes executable query
+-(void)executeQuery:(NSString *)query;
+
+# DBController
+
+Singleton class for controlling one or more sqlite databases
+
+Singleton Method
++ (id)sharedManager;
+
+Select/Insert methods for multiple databases
+- (NSArray *)selectFromDB:(NSString *)database withQuery:(NSString *)query;
+- (void)insertIntoDB:(NSString *)database withQuery:(NSString *)query;
+- (void)swapDatabase:(NSString *)database;
+- (NSArray *)selectFromEx1:(NSString *)query;
+- (void)insertIntoEx1:(NSString *)query;
+
+Select/Insert methods for single database
+- (NSArray *)selectFromDB1:(NSString *)query;
+- (void)insertIntoDB1:(NSString *)query;
+
+# Custom IOS Alert View
+
+Custom implementation of the alert view found here: https://github.com/wimagguc
+
+# CBZip
+
+Needed for utility zip methods - Found here: https://github.com/CocoaBob/CBZipFile
