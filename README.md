@@ -106,7 +106,7 @@ Initializer for opening and copying database into documents directory
 -(instancetype)initWithDatabaseFilename:(NSString *)dbFilename;
 -(void)copyDatabaseIntoDocumentsDirectory;
 
-Runs query and informs database whether or not query is executable
+Runs query and informs database whether or not query is executable<br>
 -(void)runQuery:(const char *)query isQueryExecutable:(BOOL)queryExecutable;
 
 Loads data from DB - usually a SELECT statement
