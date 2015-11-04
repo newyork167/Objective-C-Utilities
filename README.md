@@ -1,7 +1,8 @@
 # Objective-C-Utilities
 
-<a href=https://github.com/newyork167/Objective-C-Utilities/blob/master/README.md#dbcontroller>DBController</a>
-<a href=https://github.com/newyork167/Objective-C-Utilities/blob/master/README.md#custom-ios-alert-view>Custom IOS Alert View</a>
+<a href=https://github.com/newyork167/Objective-C-Utilities/blob/master/README.md#nyutilities>NYUtilities</a><br>
+<a href=https://github.com/newyork167/Objective-C-Utilities/blob/master/README.md#dbcontroller>DBController</a><br>
+<a href=https://github.com/newyork167/Objective-C-Utilities/blob/master/README.md#custom-ios-alert-view>Custom IOS Alert View</a><br>
 
 # NYUtilities
 
